@@ -1,6 +1,6 @@
 package main
 
-import (
+import ( //imports for all the supporting modules and what looks like probably GO specefic functions
 	"context"
 	"log"
 	"os"
@@ -40,12 +40,12 @@ import (
 	_ "github.com/taubyte/tau/protocols/tns"
 )
 
-func main() {
+func main() { //main function that is essentially 'the program', creates the instance and runs the 'loop' of the program. Probably somewhat wrong in that guess but something similar is happening here. Seems to be either specefic to how GO works or a convention of some sort since main.go is a common file sort of like a index.html or a index.js
 	ctx, ctxC := context.WithCancel(context.Background())
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
-	go func() {
+	go func() {//function to catch a cancel or shutdown input
 		sig := <-signals
 		switch sig {
 		case os.Interrupt, syscall.SIGTERM:
@@ -54,16 +54,16 @@ func main() {
 		}
 	}()
 
-	defer func() {
+	defer func() {//if the variable for 'DoDaemon' is true (default false) then cancel. Zeno seems to mass close all instances
 		if common.DoDaemon {
 			ctxC()
 			services.Zeno()
 		}
 	}()
 
-	ops := []client.Option{client.URL(common.DefaultDreamlandURL), client.Timeout(300 * time.Second)}
+	ops := []client.Option{client.URL(common.DefaultDreamlandURL), client.Timeout(300 * time.Second)} //set some options
 	multiverse, err := client.New(ctx, ops...)
-	if err != nil {
+	if err != nil {//error catches for crash reporting
 		log.Fatalf("Starting new dreamland client failed with: %s", err.Error())
 	}
 
@@ -73,7 +73,7 @@ func main() {
 	}
 }
 
-func defineCLI(ctx *common.Context) *(cli.App) {
+func defineCLI(ctx *common.Context) *(cli.App) {//startup the CLI and set some options
 	app := &cli.App{
 		UseShortOptionHandling: true,
 		Commands: []*cli.Command{
